@@ -4,9 +4,6 @@ import Home from './Screens/Home'
 
 export default function App() {
   return (
-    // <View style={styles.container}>
-    //   <Text>dd</Text>
-    // </View>
       <Home/>
   );
 }
