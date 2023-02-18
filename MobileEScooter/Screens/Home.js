@@ -29,12 +29,6 @@ export default function Home() {
     const LATITUDE_DELTA = 0.02;
     const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
     
-    const initial_location = {
-        latitude: 32.29496475761959,
-        longitude: -9.234702467931514,
-        latitudeDelta: LATITUDE_DELTA,
-        longitudeDelta: LONGITUDE_DELTA,
-      };
     useEffect(() => {
       (async () => {
         let { status } = await Location.requestForegroundPermissionsAsync();
@@ -42,11 +36,10 @@ export default function Home() {
           console.log('Permission to access location was denied');
           return;
         }
-  
         let location = await Location.getCurrentPositionAsync({});
         setLocation(location);
       })();
-    }, []);
+    }, [location]);
   
     useEffect(() => {
       if (locationWatcher) {

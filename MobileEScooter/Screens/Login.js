@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity,Image } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity,Image,Button } from 'react-native';
 
-const LoginScreen = () => {
+const LoginScreen = ({navigation}) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -20,6 +20,7 @@ const LoginScreen = () => {
   const handleLogin = () => {
     if (validateInputes()) {
         // logic
+        navigation.navigate('Home')
     }
   };
 
@@ -45,7 +46,9 @@ const LoginScreen = () => {
           secureTextEntry
         />
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
-
+        <TouchableOpacity style={styles.Link} onPress={() =>navigation.navigate('Register')}>
+          <Text style={styles.LinkText}>Not a member</Text>
+        </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={handleLogin}>
           <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>
@@ -100,6 +103,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  Link:{
+    alignSelf:'flex-end',
+    marginBottom:16,
+  },
+  LinkText:{
+    textDecorationLine: 'underline',
+    textDecorationStyle: 'solid',
+    textDecorationColor: '#000'
+  }
 });
 
 export default LoginScreen;
