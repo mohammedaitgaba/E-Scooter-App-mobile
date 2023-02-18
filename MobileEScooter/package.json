@@ -21,7 +21,13 @@
     "react-native-google-places-autocomplete": "^2.5.1",
     "react-native-maps": "^1.4.0",
     "react-native-screens": "~3.18.0",
-    "react-native-safe-area-context": "4.4.1"
+    "react-native-safe-area-context": "4.4.1",
+    "mongoose": "^6.9.0",
+    "@nestjs/config": "^2.3.0",
+    "@nestjs/jwt": "^10.0.1",
+    "@nestjs/mongoose": "^9.2.1",
+    "@nestjs/passport": "^9.0.3"
+
   },
   "devDependencies": {
     "@babel/core": "^7.12.9"
