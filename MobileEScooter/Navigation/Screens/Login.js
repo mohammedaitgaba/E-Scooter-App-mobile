@@ -1,12 +1,37 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity,Image,Button } from 'react-native';
+import axios from 'axios'
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useIsFocused } from '@react-navigation/native';
+
 
 const LoginScreen = ({navigation}) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [authenticated, setAuthenticated] = useState(false);
+  const isFocused = useIsFocused();
 
-
+  // useEffect(()=>{
+  //   if (authenticated) {
+  //     navigation.navigate('Home')
+  //   }
+  //   checkAuthentication();
+  // },[authenticated])
+  
+  const checkAuthentication = async () => {
+    console.log("man");
+    const logged = await AsyncStorage.getItem('Token');
+    if (logged) {
+      setAuthenticated(true);
+    }
+  };
+  if (isFocused) {
+    checkAuthentication()
+    if (authenticated) {
+      navigation.navigate('Home')
+    }
+  }
   const  validateInputes=()=>{
       if (!username || !password) {
         setError('All fields are required');
@@ -20,7 +45,22 @@ const LoginScreen = ({navigation}) => {
   const handleLogin = () => {
     if (validateInputes()) {
         // logic
-        navigation.navigate('Home')
+        axios.post('http://192.168.0.107:3000/auth/SignIn',{
+          UserName:username,
+          Password:password
+        }).then(res=>{
+          if (res.data.token) {
+            AsyncStorage.setItem('Token',res.data.token,(error) => {
+              if (error) {
+                console.log('Error saving data: ', error);
+              } else {
+                console.log('Data saved successfully');
+                setAuthenticated(true)
+              }
+            })
+          }
+        })
+        .catch(err=>console.log(err))
     }
   };
 
@@ -28,7 +68,7 @@ const LoginScreen = ({navigation}) => {
     <View style={styles.container}>
       <View style={styles.logoContainer}>
         <Text >E-ScooTer Map</Text>
-        <Image style={styles.logo} source={require('../utils/images/Logo-Escooter.png')}></Image>
+        <Image style={styles.logo} source={require('../../utils/images/Logo-Escooter.png')}></Image>
         {/* <Text style={styles.logo}>Logo</Text> */}
       </View>
       <View style={styles.formContainer}>
