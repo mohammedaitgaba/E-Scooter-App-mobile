@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity,Image,Button } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity,Image,Button ,ToastAndroid} from 'react-native';
 import axios from 'axios'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useIsFocused } from '@react-navigation/native';
@@ -20,7 +20,6 @@ const LoginScreen = ({navigation}) => {
   // },[authenticated])
   
   const checkAuthentication = async () => {
-    console.log("man");
     const logged = await AsyncStorage.getItem('Token');
     if (logged) {
       setAuthenticated(true);
@@ -45,11 +44,12 @@ const LoginScreen = ({navigation}) => {
   const handleLogin = () => {
     if (validateInputes()) {
         // logic
-        axios.post('http://192.168.0.107:3000/auth/SignIn',{
+        axios.post('192.168.9.25:3000/auth/SignIn',{
           UserName:username,
           Password:password
         }).then(res=>{
           if (res.data.token) {
+
             AsyncStorage.setItem('Token',res.data.token,(error) => {
               if (error) {
                 console.log('Error saving data: ', error);
@@ -60,7 +60,14 @@ const LoginScreen = ({navigation}) => {
             })
           }
         })
-        .catch(err=>console.log(err))
+        .catch(err=>{
+          console.log("eeeeee",err)
+          ToastAndroid.showWithGravity(
+            "incorrect info",
+              ToastAndroid.SHORT,
+              ToastAndroid.CENTER
+          );
+        })
     }
   };
 
@@ -89,7 +96,7 @@ const LoginScreen = ({navigation}) => {
         <TouchableOpacity style={styles.Link} onPress={() =>navigation.navigate('Register')}>
           <Text style={styles.LinkText}>Not a member</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
+        <TouchableOpacity style={styles.button} onPress={()=>handleLogin()}>
           <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>
       </View>
