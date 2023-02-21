@@ -1,8 +1,9 @@
-import { StyleSheet,View, Text,Dimensions, Button } from 'react-native'
+import { StyleSheet,View, Text,Dimensions, Button,Modal,TouchableOpacity,TextInput } from 'react-native'
 import React,{useEffect,useState,useRef} from 'react'
 import MapView,{ Marker ,Polyline } from "react-native-maps";
 import * as Location from 'expo-location';
 import * as geolib from 'geolib';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 
 
 
@@ -15,6 +16,9 @@ export default function Home() {
   const [routeCoordinates, setRouteCoordinates] = useState([]);
   const [traficShower, setTraficShower]=useState(false)
   const [locationWatcher, setLocationWatcher]=useState(false)
+  const [modalVisible, setModalVisible] = useState(false);
+  const [title,setTitle]=useState('')
+
   const mapRef = useRef(null);
 
     let text = 'Waiting..';
@@ -71,8 +75,13 @@ export default function Home() {
   
     const handleMapLongPress = async (event) => {
       const Usermarker = event.nativeEvent.coordinate;
+      console.log(Usermarker);
+      setModalVisible(true)
       setMarker(Usermarker);
     };
+    const handleSaveTravel = ()=>{
+      
+    }
     useEffect(()=>{
       const RoutSetter= async()=>{
         if (marker) {
@@ -141,11 +150,38 @@ export default function Home() {
           showsTraffic={traficShower}
           onLongPress={handleMapLongPress}
         >
-          {marker && <Marker coordinate={marker} />}
+          {marker&&distance && <Marker coordinate={marker} title={"line distance : "+distance +"m"} />}
           {routeCoordinates.length > 0 && <Polyline coordinates={routeCoordinates} />}
         </MapView>
         {/* <Button title="Show trafic!" onPress={()=>setTraficShower(!traficShower)} />     */}
-        <Button  title={locationWatcher?"Static location":"Live location"} onPress={()=>setLocationWatcher(!locationWatcher)} />    
+        <View style={styles.options} >
+          <Button  title={locationWatcher?"Static location":"Live location"} onPress={()=>setLocationWatcher(!locationWatcher)} />    
+          <Button  title={locationWatcher?"hide my scooter":"Show my scooter"} onPress={()=>setLocationWatcher(!locationWatcher)} />    
+        </View>
+        <Modal visible={modalVisible} animationType="slide">
+        <View style={styles.modal}>
+          <Text style={styles.header}>Would you like to save this travel</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Travel Title"
+            value={title}
+            onChangeText={setTitle}
+          />
+          <View style={[styles.options,{ width:'90%'}]}>
+            {/* <TouchableOpacity onPress={() => setModalVisible(false)}>
+              <Text style={styles.button}>Save</Text>
+            </TouchableOpacity> */}
+            <TouchableOpacity style={styles.button} onPress={()=>handleSaveTravel()}>
+              <MaterialIcons name='save-alt' type="font-awesome" size={20} color='#f9fafb' />
+              <Text style={styles.title}>Save</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => setModalVisible(false)}>
+              <Text style={{ color: 'red' }}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
     :
     <View style={styles.container}><Text>Loading...</Text></View>
@@ -164,5 +200,48 @@ const styles = StyleSheet.create({
     map: {
       width: '100%',
       height: '90%',
-    }
+    },
+    options:{
+      display:'flex',
+      flexDirection:'row',
+      width:'100%',
+      alignItems:'center',
+      justifyContent:'space-around',
+      paddingTop:10
+    },
+    modal:{ 
+      flex: 1,
+      justifyContent: 'space-around', 
+      alignItems: 'center' 
+    },
+    header:{
+      fontSize: 18,
+      fontWeight: 'bold'
+    },
+    input: {
+      width:'50%',
+      borderWidth: 1,
+      borderColor: '#ccc',
+      borderRadius: 8,
+      paddingVertical: 12,
+      paddingHorizontal: 16,
+      marginBottom: 16,
+      fontSize: 16,
+    },
+    button: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      height: 50,
+      borderRadius: 10,
+      paddingHorizontal: 20,
+      marginVertical: 10,
+      backgroundColor:'#06beb6'
+    },
+    title: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      marginLeft: 10,
+      color:'#f9fafb',
+    },
   });
