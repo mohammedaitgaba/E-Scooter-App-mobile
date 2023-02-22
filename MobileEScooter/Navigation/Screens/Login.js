@@ -21,15 +21,16 @@ const LoginScreen = ({navigation}) => {
   
   const checkAuthentication = async () => {
     const logged = await AsyncStorage.getItem('Token');
+    console.log(logged);
     if (logged) {
       setAuthenticated(true);
+      navigation.navigate('Home')
+    }else{
+      navigation.navigate('Login')
     }
   };
   if (isFocused) {
     checkAuthentication()
-    if (authenticated) {
-      navigation.navigate('Home')
-    }
   }
   const  validateInputes=()=>{
       if (!username || !password) {
@@ -43,8 +44,7 @@ const LoginScreen = ({navigation}) => {
   }
   const handleLogin = () => {
     if (validateInputes()) {
-        // logic
-        axios.post('192.168.9.25:3000/auth/SignIn',{
+          axios.post('http://192.168.9.25:3000/auth/SignIn',{
           UserName:username,
           Password:password
         }).then(res=>{

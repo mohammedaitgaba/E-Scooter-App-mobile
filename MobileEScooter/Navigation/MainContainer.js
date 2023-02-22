@@ -69,15 +69,15 @@ const MainContainer = () => {
         >
             <Tab.Screen name={homeScreen} component={Home} />
             <Tab.Screen name={historyScreen} component={HistoryScreen} />
-            {
-                authenticated?
-                <>
                 <Tab.Screen name={loginScreen} component={LoginScreen} />
                 <Tab.Screen name={register} component={RegisterScreen} />
+            {/* {
+                authenticated?
+                <>
                 </>
                 :
+            } */}
                 <Tab.Screen name={logout} component={Logout} onPress={()=>setAuthenticated(false)}/>
-            }
 
         </Tab.Navigator>
     </NavigationContainer>
