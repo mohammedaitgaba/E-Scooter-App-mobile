@@ -1,39 +1,61 @@
 import React,{useEffect,useState} from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';
 import { Card, Text, Button } from 'react-native-elements';
+import axios from 'axios'
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import jwt_decode from "jwt-decode";
+import moment from 'moment';
 
-const data = [
-  { id: 1, title: 'Card 1', description: 'This is the description of card 1.' },
-  { id: 2, title: 'Card 2', description: 'This is the description of card 2.' },
-  { id: 3, title: 'Card 3', description: 'This is the description of card 3.' },
-];
 
-const renderItem = ({ item }) => {
-  
-  return (
-    <Card containerStyle={styles.card}>
-      <Card.Title>{item.title}</Card.Title>
-      <Card.Divider />
-      <Text style={styles.description}>{item.description}</Text>
-      <Button
-        title="Show On map"
-        buttonStyle={styles.button}
-        titleStyle={styles.buttonTitle}
-      />
-    </Card>
-  );
-};
 
-const keyExtractor = (item) => item.id.toString();
 
 const HistoryScreen = () => {
+  const [Travels, setTravels] = useState([])
+  const getMytravels=async()=>{
+    setTravels([])
+    const token = await AsyncStorage.getItem("Token");
+    const decodedToken = jwt_decode(token);
+    const id = decodedToken.id;
+    axios.get(`http://192.168.9.25:3000/travel/${id}`)
+    .then(res=>{
+      res.data.travels.forEach(element => {
+        setTravels(current =>[...current,element])
+      })
+    })
+    .catch(err=>console.log(err))
+
+  }
+  const Check=()=>{
+    // add logic to show pos on the home map
+  }
+  useEffect(()=>{
+    getMytravels()
+  },[])
   return (
     <View style={styles.container}>
+    {
+      Travels?
       <FlatList
-        data={data}
-        renderItem={renderItem}
-        keyExtractor={keyExtractor}
-      />
+        data={Travels}
+        renderItem={({item})=>
+        <Card containerStyle={styles.card}>
+          <Card.Title>{item.i} {item.Title}</Card.Title>
+          <Card.Divider />
+          <Text style={styles.description}>
+            Tavel Date :   
+            {moment(item.createdAt).format('L')+" "+moment(item.createdAt).format('LT')}
+          </Text>
+          <Button
+            title="Show On map"
+            buttonStyle={styles.button}
+            titleStyle={styles.buttonTitle}
+            onPress={()=>Check()}
+          />
+        </Card>
+        }
+      />:
+      <Text>No Posts</Text>
+    }
     </View>
   );
 };

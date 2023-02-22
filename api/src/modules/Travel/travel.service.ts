@@ -11,13 +11,22 @@ import { Travel } from './schema/Travel.schema';
 export class TravelService {
     constructor(
         @InjectModel(Travel.name)
-        private userModel:Model<Travel>
+        private TravelModel:Model<Travel>
     ){}
     async AddNewTravel(Travel:TravelDto):Promise<{message:string}>{
-        const newTravel = await this.userModel.create(Travel)
+        const newTravel = await this.TravelModel.create(Travel)
         if (!newTravel) {
-            throw new  HttpException('No Deleted Posts found',HttpStatus.BAD_REQUEST)     
+            throw new  HttpException('error',HttpStatus.BAD_REQUEST)     
         }
         return {message:'Succesfully Saved'}
+    }
+    async GetTravelsByIdMaker(id:string):Promise<{travels:{}}>{
+        const travels = await this.TravelModel.find({
+            Maker:id
+        })
+        if (!travels) {
+            throw new  HttpException('No Travels found',HttpStatus.BAD_REQUEST)     
+        }
+        return {travels}
     }
 }

@@ -219,7 +219,7 @@ export default function Home({navigation}) {
             {/* <TouchableOpacity onPress={() => setModalVisible(false)}>
               <Text style={styles.button}>Save</Text>
             </TouchableOpacity> */}
-            <TouchableOpacity style={styles.button} onPress={()=>handleSaveTravel()}>
+            <TouchableOpacity style={[styles.button,{padding:15}]} onPress={()=>handleSaveTravel()}>
               <MaterialIcons name='save-alt' type="font-awesome" size={20} color='#f9fafb' />
               <Text style={styles.title}>Save</Text>
             </TouchableOpacity>
@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
     },
     map: {
       width: '100%',
-      height: '85%',
+      height: '88%',
     },
     options:{
       display:'flex',
@@ -279,7 +279,8 @@ const styles = StyleSheet.create({
     button: {
       backgroundColor: '#00bfff',
       borderRadius: 10,
-      marginBottom:25
+      display:'flex',
+      flexDirection:'row'
     },
     title: {
       fontSize: 18,

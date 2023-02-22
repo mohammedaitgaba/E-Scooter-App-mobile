@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UsePipes, ValidationPipe } from '@nestjs/common';
 import { TravelDto } from 'src/shared/dto/Travel.dto';
 import { TravelService } from './travel.service';
 
@@ -9,5 +9,10 @@ export class TravelController {
     @UsePipes(new ValidationPipe())
     AddNewTravel(@Body() travel:TravelDto){
         return this.TravelService.AddNewTravel(travel)
+    }
+
+    @Get(':id')
+    GetUserTravels(@Param('id') id: string){
+        return this.TravelService.GetTravelsByIdMaker(id)
     }
 }
