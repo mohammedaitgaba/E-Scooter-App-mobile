@@ -1,14 +1,19 @@
-import { StyleSheet,View, Text,Dimensions, Button,Modal,TouchableOpacity,TextInput } from 'react-native'
+import { StyleSheet,View,Dimensions,Modal,TouchableOpacity,TextInput,ToastAndroid } from 'react-native'
+import { Text, Button } from 'react-native-elements'
 import React,{useEffect,useState,useRef} from 'react'
 import MapView,{ Marker ,Polyline } from "react-native-maps";
 import * as Location from 'expo-location';
 import * as geolib from 'geolib';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
+import jwt_decode from "jwt-decode";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useIsFocused } from '@react-navigation/native';
+import axios from 'axios'
 
 
 
 
-export default function Home() {
+export default function Home({navigation}) {
   const [location, setLocation] = useState(null);
   const [marker, setMarker] = useState(null);
   const [distance, setDistance] = useState(null);
@@ -18,6 +23,7 @@ export default function Home() {
   const [locationWatcher, setLocationWatcher]=useState(false)
   const [modalVisible, setModalVisible] = useState(false);
   const [title,setTitle]=useState('')
+  const isFocused = useIsFocused();
 
   const mapRef = useRef(null);
 
@@ -26,7 +32,20 @@ export default function Home() {
     // useEffect(()=>{
     //     getCurrentLocation()
     // },[])
-    
+    const checkAuthentication = async () => {
+      const logged = await AsyncStorage.getItem('Token');
+      if (!logged) {
+        navigation.navigate('Login')
+        ToastAndroid.showWithGravity(
+          "Please Login First",
+            ToastAndroid.SHORT,
+            ToastAndroid.CENTER
+        );
+      }
+    };
+    if (isFocused) {
+      checkAuthentication()
+    }
     const { width, height } = Dimensions.get("window");
 
     const ASPECT_RATIO = width / height;
@@ -75,12 +94,41 @@ export default function Home() {
   
     const handleMapLongPress = async (event) => {
       const Usermarker = event.nativeEvent.coordinate;
-      console.log(Usermarker);
       setModalVisible(true)
       setMarker(Usermarker);
     };
-    const handleSaveTravel = ()=>{
-      
+    const handleSaveTravel = async ()=>{
+
+      // first lets get the id from the token
+      const token = await AsyncStorage.getItem("Token");
+      const decodedToken = jwt_decode(token);
+      const id = decodedToken.id;
+      axios.post('http://192.168.9.25:3000/travel/NewTravel',{
+          Maker:id,
+          Title:title,
+          StartPosition:{
+            latitude:location.coords.altitude,
+            longitude:location.coords.longitude
+          },
+          ArrivalPosition:marker
+        }).then(res=>{
+          if (res.data) {
+            ToastAndroid.showWithGravity(
+              `${res.data.message}`,
+                ToastAndroid.SHORT,
+                ToastAndroid.CENTER
+            );
+            setModalVisible(false)
+            setTitle('')
+          }
+        }).catch(err=>{
+          ToastAndroid.showWithGravity(
+            `${err}`,
+              ToastAndroid.SHORT,
+              ToastAndroid.CENTER
+          );
+        })
+
     }
     useEffect(()=>{
       const RoutSetter= async()=>{
@@ -155,8 +203,8 @@ export default function Home() {
         </MapView>
         {/* <Button title="Show trafic!" onPress={()=>setTraficShower(!traficShower)} />     */}
         <View style={styles.options} >
-          <Button  title={locationWatcher?"Static location":"Live location"} onPress={()=>setLocationWatcher(!locationWatcher)} />    
-          <Button  title={locationWatcher?"hide my scooter":"Show my scooter"} onPress={()=>setLocationWatcher(!locationWatcher)} />    
+          <Button buttonStyle={styles.button} title={locationWatcher?"Static location":"Live location"} onPress={()=>setLocationWatcher(!locationWatcher)} />    
+          <Button buttonStyle={styles.button} title={locationWatcher?"hide my scooter":"Show my scooter"} onPress={()=>setLocationWatcher(!locationWatcher)} />    
         </View>
         <Modal visible={modalVisible} animationType="slide">
         <View style={styles.modal}>
@@ -199,7 +247,7 @@ const styles = StyleSheet.create({
     },
     map: {
       width: '100%',
-      height: '90%',
+      height: '85%',
     },
     options:{
       display:'flex',
@@ -229,14 +277,9 @@ const styles = StyleSheet.create({
       fontSize: 16,
     },
     button: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      height: 50,
+      backgroundColor: '#00bfff',
       borderRadius: 10,
-      paddingHorizontal: 20,
-      marginVertical: 10,
-      backgroundColor:'#06beb6'
+      marginBottom:25
     },
     title: {
       fontSize: 18,
